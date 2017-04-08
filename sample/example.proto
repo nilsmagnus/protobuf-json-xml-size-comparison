@@ -6,5 +6,10 @@ message Test {
   string query = 1;
   int32 page_number = 2;
   int32 result_per_page = 3;
-  map<string, float> tickerValues = 4;
+  repeated Ticker tickers = 4;
+}
+
+message Ticker {
+  string name =1;
+  float value =2;
 }
