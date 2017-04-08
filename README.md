@@ -11,6 +11,4 @@ https://nilsmagnus.github.io/post/proto-json-sizes/
 
     go run main.go -show json -entries 200
     go run main.go -show jsonlen -entries 200
-    go run main.go -show xmllen -entries 200
-    go run main.go -show proto -entries 200
     go run main.go -show protolen -entries 200
