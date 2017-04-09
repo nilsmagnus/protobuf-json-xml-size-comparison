@@ -2,54 +2,65 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/nilsmagnus/grpc-samples/sample"
 	"math/rand"
 	"time"
+	"bytes"
+	"compress/gzip"
 )
 
 func main() {
+	for _, dataSize := range []int{0, 1, 2, 10, 20, 200, 2000, 20000} {
+		protoStruct := createTestDatata(dataSize)
+		jsonl, gzJsonlen,  protol := jsonProtoLengts(protoStruct)
+		fmt.Printf("%d tickers, json: %d, gzJson %d, proto: %d , proto vs json %f ,proto vs gzipjson %f \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
+	}
 
-	show := flag.String("show", "nothing", "what to show: json, jsonlen, proto, protolen")
-	numberOfMapEntries := flag.Int("entries", 100, "How many entries in map")
+}
+func createTestDatata(numberOfEntries int) *sample.Test {
 
-	flag.Parse()
+	tickers := make([]*sample.Ticker, numberOfEntries)
 
-	tickers := make([]*sample.Ticker, *numberOfMapEntries)
-
-	for i := 0; i < *numberOfMapEntries; i++ {
+	for i := 0; i < numberOfEntries; i++ {
 		tickers[i] = &sample.Ticker{
 			Value: rand.Float32() * 10.0,
 			Name:  RandStringRunes(3),
 		}
 	}
 
-	protosome := &sample.Test{
+	return &sample.Test{
 		Query:         "myQuery",
 		PageNumber:    42,
 		ResultPerPage: 100,
 		Tickers:       tickers,
 	}
 
-	switch *show {
-	case "protolen":
-		data, _ := proto.Marshal(protosome)
-		fmt.Printf("size of protoencoded : %d\n", len(data))
-	case "proto":
-		data, _ := proto.Marshal(protosome)
-		fmt.Println(data)
-	case "json":
-		jsonified, _ := json.Marshal(protosome)
-		fmt.Println(string(jsonified))
-	case "jsonlen":
-		jsonified, _ := json.Marshal(protosome)
-		fmt.Printf("json length(raw): %d\n", len(jsonified))
-	default:
-		fmt.Printf("unknown show-option: %s\n", *show)
+}
+
+func jsonProtoLengts(protoSome *sample.Test) (jsonLen, gzipJsonLen, protoLen int) {
+	data, _ := proto.Marshal(protoSome)
+	protoLen = len(data)
+	jsonified, _ := json.Marshal(protoSome)
+	jsonLen = len(jsonified)
+	gzipJsonLen = gzipLen(jsonified)
+	return
+}
+func gzipLen(jsonData []byte) int {
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	if _, err := gz.Write(jsonData); err != nil {
+		panic(err)
+	}
+	if err := gz.Flush(); err != nil {
+		panic(err)
+	}
+	if err := gz.Close(); err != nil {
+		panic(err)
 	}
 
+	return b.Len()
 }
 
 func init() {
