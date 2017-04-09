@@ -15,7 +15,8 @@ func main() {
 	for _, dataSize := range []int{0, 1, 2, 10, 20, 200, 2000, 20000} {
 		protoStruct := createTestDatata(dataSize)
 		jsonl, gzJsonlen,  protol := jsonProtoLengts(protoStruct)
-		fmt.Printf("%d tickers, json: %d, gzJson %d, proto: %d , proto vs json %f ,proto vs gzipjson %f \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
+		fmt.Printf("# %d tickers, json: %d, gzJson %d, proto: %d , proto vs json %f ,proto vs gzipjson %f \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
+		fmt.Printf("| %d |  %d | %d | %d | %f | %f | \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
 	}
 
 }
@@ -47,6 +48,7 @@ func jsonProtoLengts(protoSome *sample.Test) (jsonLen, gzipJsonLen, protoLen int
 	gzipJsonLen = gzipLen(jsonified)
 	return
 }
+
 func gzipLen(jsonData []byte) int {
 	var b bytes.Buffer
 	gz := gzip.NewWriter(&b)
