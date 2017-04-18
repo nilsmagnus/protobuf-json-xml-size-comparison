@@ -9,6 +9,4 @@ https://nilsmagnus.github.io/post/proto-json-sizes/
 
 # usage
 
-    go run main.go -show json -entries 200
-    go run main.go -show jsonlen -entries 200
-    go run main.go -show protolen -entries 200
+    go run main.go
