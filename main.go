@@ -1,22 +1,23 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/golang/protobuf/proto"
-	"github.com/nilsmagnus/grpc-samples/sample"
-	"math/rand"
-	"time"
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
+	"fmt"
+	"math/rand"
+	"time"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/nilsmagnus/grpc-samples/sample"
 )
 
 func main() {
 	for _, dataSize := range []int{0, 1, 2, 10, 20, 200, 2000, 20000} {
 		protoStruct := createTestDatata(dataSize)
-		jsonl, gzJsonlen,  protol := jsonProtoLengts(protoStruct)
-		fmt.Printf("# %d tickers, json: %d, gzJson %d, proto: %d , proto vs json %f ,proto vs gzipjson %f \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
-		fmt.Printf("| %d |  %d | %d | %d | %f | %f | \n", dataSize, jsonl, gzJsonlen, protol, float32(protol)/float32(jsonl), float32(protol)/float32(gzJsonlen))
+		jsonl, gzJsonlen, protol, gzProto := jsonProtoLengts(protoStruct)
+		fmt.Printf("# %d tickers, json: %d, gzJson %d, proto: %d , gzProto %d, gzproto vs gzipjson %f,  proto vs json %f \n", dataSize, jsonl, gzJsonlen, protol, gzProto, float32(gzProto)/float32(gzJsonlen), float32(protol)/float32(jsonl))
+		fmt.Printf("| %d |  %d | %d | %d | %d | %f | %f | \n", dataSize, gzJsonlen, protol, gzProto, gzProto, float32(gzProto)/float32(gzJsonlen), float32(protol)/float32(jsonl))
 	}
 
 }
@@ -40,12 +41,13 @@ func createTestDatata(numberOfEntries int) *sample.Test {
 
 }
 
-func jsonProtoLengts(protoSome *sample.Test) (jsonLen, gzipJsonLen, protoLen int) {
+func jsonProtoLengts(protoSome *sample.Test) (jsonLen, gzipJSONLen, protoLen, gzpProto int) {
 	data, _ := proto.Marshal(protoSome)
 	protoLen = len(data)
 	jsonified, _ := json.Marshal(protoSome)
 	jsonLen = len(jsonified)
-	gzipJsonLen = gzipLen(jsonified)
+	gzipJSONLen = gzipLen(jsonified)
+	gzpProto = gzipLen(data)
 	return
 }
 
