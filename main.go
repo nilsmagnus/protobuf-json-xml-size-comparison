@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/nilsmagnus/grpc-samples/sample"
+	"github.com/nilsmagnus/protobuf-json-xml-size-comparison/sample"
 )
 
 func main() {
